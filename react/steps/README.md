@@ -1,33 +1,53 @@
-# GraphQL pagination cursor design, using Golang
-主要紀錄如何設計出pagination cursor的分頁製作
-! 本source code無法直接執行，僅有片段
+# React Step
+由於公司專案有單一頁面(Route)但多分頁切換的需求
+因此製作React Steps，令程式可方便控制分頁切換
 
-## 按例：讀取更多的電影
-現在想要依Relay Cursor的規範製作電影列表的讀取
-根據規範，GQL Query Schema應該如下
-
-### GQL Query
+### 使用方式
 ```
 {
-  articles(first: 1, after: "MTU0NTkwNDM4NA==") {
-    totalCount
-    pageInfo {
-      hasNextPage
-      endCursor
-    }
-    edges {
-      node {
-        title
-        content
-	  }
-	  cursor
-    }
-  }
+  <Steps name="demo">
+    {({step, gotoNextStep, gotoPrevStep, gotoSpecStep}) => (
+      <div>
+        <p>{step}</p>
+        <Step>
+          {({data}) => (
+            <div><p>111</p></div>
+          )}
+        </Step>
+        <Step>
+          {({data}) => (
+            <div>{data ? data.get('data') : null}</div>
+          )}
+        </Step>
+        <Step>
+          {({data}) => (
+            <div>333</div>
+          )}
+        </Step>
+        <button disabled={step === 1} onClick={() => gotoPrevStep()}>prev</button>
+        <button
+          disabled={step === 3}
+          onClick={() => gotoNextStep(fromJS({
+            data: 'hello'
+          }))}
+        >next</button>
+        <button
+          disabled={step === 3}
+          onClick={() => gotoSpecStep({
+            stepNum: 3,
+            data: fromJS({
+              data: 'hello'
+            })
+          })}
+        >到3</button>
+      </div>
+    )}
+  </Steps>
 }
 ```
 
 ### 程式碼檔案說明
 |檔名|說明|
 |---|---|
-|root.go|在第36行可以看到在query root做了Movies的程式入口|
-|movies.go|電影列表查詢入口，從最下面往上定義|
+|index.js|Steps Entry
+|Step/index.js|使用Step包住elment，使該element變成一組分頁|
